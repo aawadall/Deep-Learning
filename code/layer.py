@@ -78,3 +78,5 @@ class Layer:
         # Update parameters 
         self.W *= -self.alpha * dW
         self.b *= -self.alpha * db
+
+  #TODO add a Re-Inforcment Learning agent to tyne single layer hyper parameters based on a signal from network 
