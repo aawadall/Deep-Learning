@@ -32,3 +32,4 @@ class Network():
                                        layers["p"+str(layer)],
                                        layers["gamma"+str(layer)],
                                        True)
+#TODO: add a Re-Inforcement Learning agent to tune the network, sending signals to individual layers to optimize hyperparameters
