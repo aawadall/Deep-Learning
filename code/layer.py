@@ -8,11 +8,27 @@ import numpy as np
 # L2 Norm regularization parameter _lambda
 # dropout regularization parameter p (as in keeping probability)
 
+
 class Layer:
     """Neural Network Layer"""
-    def __init__(self, n_prev, n, act='sigmoid', alpha=0.5, _lambda=0.1, p =0.75):
+    def __init__(self, n_prev, n, act='sigmoid', alpha=0.5, _lambda=0.1, p=0.75, gamma=0.01):
         """Neural Network initialization method, 
         given previous layer dimensions n_prev, 
         and current layer dimensions n, 
-        construct weight matrix W and intercept (bias vector) b"""
-        
+        construct weight matrix W with random numbers multiplied by scaling factor gamma
+        and intercept (bias vector) b"""
+        self.W = np.random.randn(n, n_prev) * gamma
+        self.b = np.zeros((n, 1))
+        self.act = act
+        self.alpha = alpha
+        self.p = p
+
+    def activation(self, Z):
+        if self.act == 'sigmoid':
+            return 1 / (1 +np.exp(-Z))
+        elif self.act == 'tanh':
+            return np.tanh(Z)
+        elif self.act == 'LReLU':
+            return ((Z > 0) * Z) + ((Z <= 0) * Z / 100)
+        else:
+            return Z
