@@ -23,12 +23,32 @@ class Layer:
         self.alpha = alpha
         self.p = p
 
-    def activation(self, Z):
+    def activation(self, z):
+        """current layer activation function (g)"""
         if self.act == 'sigmoid':
-            return 1 / (1 +np.exp(-Z))
+            return 1 / (1 + np.exp(-z))
         elif self.act == 'tanh':
-            return np.tanh(Z)
+            return np.tanh(z)
         elif self.act == 'LReLU':
-            return ((Z > 0) * Z) + ((Z <= 0) * Z / 100)
+            return ((z > 0) * z) + ((z <= 0) * z / 100)
         else:
-            return Z
+            return z
+
+    def activation_derivative(self, z):
+        """derivative of current layer activation function (g')"""
+        if self.act == 'sigmoid':
+            return self.activation(z) * (1 - self.activation(z))
+        elif self.act == 'tanh':
+            return 1-np.power(z, 2)
+        elif self.act == 'LReLU':
+            return ((z > 0) * 1) + ((z <= 0) * 1 / 100)
+        else:
+            return z
+
+    def cost(self, a, expected):
+        """cost function of the current layer"""
+        _y_hat = self.activation(np.dot(self.W, a) + self.b)
+        _m = expected.shape[1]
+        _log_probs = np.multiply(np.log(_y_hat), expected) + np.multiply(np.log(1 - _y_hat), 1 - expected)
+        return - np.sum(_log_probs) / _m
+
