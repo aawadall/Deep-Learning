@@ -291,7 +291,7 @@ for j in range(10):
 k = 38
 folds = 4
 oinst = 1
-h_layers = 7
+h_layers = 20
 beta = 0.9
 np.random.seed(1)
 print("Cross Validation using {} folds".format(folds))
@@ -299,13 +299,13 @@ print("Building Deep Network of {} Hidden Layer Groups".format(h_layers))
 print("Cross Validation ..")
 cv_groups = cross_validated(X2, folds)
 print("Done")
-alphas = np.linspace(0.000251, 0.00051, oinst)
+alphas = np.linspace(0.00175, 0.00175, oinst)
 epsilons = np.linspace(0.76,0.78,oinst)
 gammas =  np.linspace(0.01,0.01,oinst)
 lambdas=  np.linspace(1.0,1.0,oinst)
 keep_probs=  np.linspace(0.99,0.99,oinst)
 alph_decays = np.linspace(0.9,0.9,oinst) 
-iterations = 90
+iterations = 150
 n_1 = []
 break_tol = 0.00000001
 etscost = []
@@ -314,7 +314,7 @@ seeds = []
 layers = []
 for j in range(oinst):
     batch_processing = True
-    batch_size = 1024 # min size
+    base_batch_size = 128 # min size
 
     print("Building Network")
     X = X2 # Direct Map
@@ -322,7 +322,7 @@ for j in range(oinst):
     acts = ['input']
     gamma = [0]
     for layer in range(h_layers):
-        n.append((30)**2) #((28-layer*3))**2)
+        n.append((5)**2) #((28-layer*3))**2)
         acts.append('lReLU') #tanh')
         gamma.append(np.sqrt(2/n[layer-1]))
         print("Hidden Layer[{: ^3d}] n = {: >4}, Activation Fn [{: >8}], Weight init Factor = {:.2E}".format(
@@ -375,7 +375,7 @@ for j in range(oinst):
             filter1 += np.abs(np.diag((numer/denom)[:,0]))
     filter1 /= np.linalg.norm(filter1)
     filter2 = 1*(np.abs(filter1) > 0.0001 )
-    params, vgrad, d_rms = init_dnn_parameters(n, acts,gamma,np.abs(filter1))
+    params, vgrad, d_rms = init_dnn_parameters(n, acts,gamma) #,np.abs(filter1))
     #alpha /= np.linalg.norm(np.abs(filter1)) # Normalize alpha to match weight adjustment 
     # Experiment 
     
@@ -388,7 +388,7 @@ for j in range(oinst):
     print("Network Activation{}".format(acts))
     cost = []
     tcost=[]
-    print("Mini-Batch : [{}], Mini-Batch Size [{}]".format(batch_processing, batch_size))
+    print("Mini-Batch : [{}], Mini-Batch Size [{}]".format(batch_processing, base_batch_size))
     print("Measuring Cost for [Training Set]",end="")
     A, cache, params = forward_dnn_propagation(X_train, params)
     cost.append(np.mean(get_dnn_cost(A, y_train)))
@@ -401,16 +401,18 @@ for j in range(oinst):
     
     for i in range(iterations):
         if batch_processing:
-            print("Epoch [{}], Training".format(i))
+            batch_power = np.random.randint(0,int(np.log2(2048/base_batch_size)))
+            batch_size = base_batch_size * 2 ** batch_power
+            print("Epoch [{}], batch size [{}] [pwr {}], Training".format(i, batch_size, batch_power))
             grads, params, vgrad, d_rms = batch_back_propagation(X_train, 
                                                    y_train, 
                                                    params, 
                                                    cache, 
-                                                   alpha,
+                                                   alpha * ( batch_size/2048),
                                                    _lambda, 
                                                    keep_prob,                                                  
                                                    batch_size,
-                                                   beta,
+                                                   beta **( batch_size/2048),
                                                    vgrad,
                                                    d_rms)
             print("Epoch [{}], Evaluating, [Training] ".format(i),end="")
