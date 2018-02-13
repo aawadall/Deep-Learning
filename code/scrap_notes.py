@@ -251,7 +251,7 @@ def batch_back_propagation(X, Y, params, cache, alpha = 0.01,
     while idx_to < m:
         counter += 1
         if idx_from < idx_to:
-            print(" [{: ^3d}], Size [{}] Ending @ {: >4.2f}%, Alph {:.2E}".format(counter,
+            print(" [{: >3d}], Size [{}] End @ {:5.2f}%, Alph {:.2E}".format(counter,
                                                                         batch_size, 
                                                                         100*idx_to/m,
                                                                         alpha * (0.9 ** (counter-1))),end="")
@@ -291,7 +291,7 @@ for j in range(10):
 k = 38
 folds = 4
 oinst = 1
-h_layers = 20
+h_layers = 10
 beta = 0.9
 np.random.seed(1)
 print("Cross Validation using {} folds".format(folds))
@@ -314,7 +314,7 @@ seeds = []
 layers = []
 for j in range(oinst):
     batch_processing = True
-    base_batch_size = 128 # min size
+    base_batch_size = 256 # min size
 
     print("Building Network")
     X = X2 # Direct Map
@@ -322,7 +322,7 @@ for j in range(oinst):
     acts = ['input']
     gamma = [0]
     for layer in range(h_layers):
-        n.append((5)**2) #((28-layer*3))**2)
+        n.append((9)**2) #((28-layer*3))**2)
         acts.append('lReLU') #tanh')
         gamma.append(np.sqrt(2/n[layer-1]))
         print("Hidden Layer[{: ^3d}] n = {: >4}, Activation Fn [{: >8}], Weight init Factor = {:.2E}".format(
@@ -451,15 +451,21 @@ for j in range(oinst):
                     y_hat = A2[num,:] > 0.5
                     y_star = y_test[num,:]
                     matched = np.sum((1-np.abs(y_star-y_hat))*y_star)
+                    tp = np.sum((y_hat == y_star) * y_star * 1)
+                    tn = np.sum((y_hat == y_star)* (1-y_star) * 1)
+                    fp = np.sum((y_hat == (1-y_star))*(1-y_star)*1)
+                    fn = np.sum((y_hat == (1-y_star))*y_star*1)
                     distance = np.linalg.norm((y_star - A2[num,:])*y_star)
                     m_test = sum(y_test[num,:]==1)
                     y_size = y_test.shape[1]
                     pct = matched/m_test
-                    print("[{}] Matched {: <6d}/{: <6d} - {: <3.2f}%, Distance {:3.2f}".format(num, 
-                                                                            int(matched),
-                                                                            int(m_test),
-                                                                            pct*100, 
-                                                                            distance ))
+                    print("[{}] Dst {:5.2f}".format(num, distance ), end='')
+                    print(" T+ve {: >6d}/{: <6d}, T-ve {: >6d}/{: <6d}, F+ve {: >6d}, F-ve {: >6d}".format(int(tp), 
+                                                                                int(np.sum(y_star)),
+                                                                                int(tn),
+                                                                                int(np.sum((1-y_star))),
+                                                                                int(fp),
+                                                                                int(fn)))
                 print("---------------------------------------------------------------")
     etscost.append(tcost[-1])
     etrcost.append(cost[-1])
