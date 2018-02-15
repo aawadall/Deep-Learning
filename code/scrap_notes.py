@@ -163,7 +163,7 @@ def back_dnn_propagation_with_momentum(X, Y, params, cache, alpha = 0.01, _lambd
     L = len(n) -1
     
     beta2 = 0.999
-    beta3 = 1 - 1e-7
+    beta3 = 1 - alpha #1e-7
     
     m = X.shape[1]
     W_limit = 5
@@ -442,7 +442,7 @@ for j in range(oinst):
         if i % 1 == 0:
             alpha *= (1-alpha) #alph_decays[j]
             print("---------------------------------------------------------------")
-            print("i = {:3d}, trc = {:3.2f}, tsc={:3.2f}, ||dW_L||_2 = {:.2E}".format(i,cost[-1],
+            print("i = {:3d}, trc = {:3.2f}, tsc={:3.2f}, |dWL|_L = {:.2E}".format(i,cost[-1],
                                                                    tcost[-1], 
                                                                    alpha*np.abs(np.linalg.norm(grads["dW"+str(L)]))))
             print(" active alpha = {:.2E}".format(alpha))
