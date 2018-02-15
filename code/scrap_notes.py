@@ -24,7 +24,8 @@ def get_features(raw_data):
     # Get data of each row from pixel0 to pixel783 
     for px in range(784):
         cols.append("pixel"+str(px))   
-    return (raw_data.as_matrix(cols) /255) - 0.5
+    #return (raw_data.as_matrix(cols) /255) - 0.5
+    return (raw_data.as_matrix(cols) > 0 ) * 1
 
 def cross_validated(X, n_samples):
     kf = KFold(n_samples, shuffle = True)
@@ -251,10 +252,10 @@ def batch_back_propagation(X, Y, params, cache, alpha = 0.01,
     while idx_to < m:
         counter += 1
         if idx_from < idx_to:
-            print(" [{: >3d}], Size [{}] End @ {:5.2f}%, Alph {:.2E}".format(counter,
-                                                                        batch_size, 
-                                                                        100*idx_to/m,
-                                                                        alpha * (0.9 ** (counter-1))),end="")
+            #print(" [{: >3d}], Size [{}] End @ {:5.2f}%, Alph {:.2E}".format(counter,
+            #                                                            batch_size, 
+            #                                                            100*idx_to/m,
+            #                                                            alpha * (0.9 ** (counter-1))),end="")
             X_train = X_shuffle[:,idx_from:idx_to]
             y_train = y_shuffle[:,idx_from:idx_to]
     
@@ -264,14 +265,14 @@ def batch_back_propagation(X, Y, params, cache, alpha = 0.01,
                                                                     y_train, 
                                                                     params, 
                                                                     cache, 
-                                                                    alpha * ((1-alpha) ** (counter-1)),
+                                                                    alpha, # * ((1-alpha) ** (counter-1)),
                                                                     _lambda, 
                                                                     keep_prob,
                                                                     beta,
                                                                     vgrad,
                                                                     d_rms,
                                                                     counter)
-            print(" Tr. Score {:.2E}".format(np.mean(get_dnn_cost(A, y_train))))
+            #print(" Tr. Score {:.2E}".format(np.mean(get_dnn_cost(A, y_train))))
         idx_from += batch_size
         idx_from = min(m, idx_from)
         idx_to += batch_size
@@ -289,9 +290,9 @@ for j in range(10):
     y[:,j]=(labels==j)*1
 
 k = 38
-folds = 4
+folds = 5
 oinst = 1
-h_layers = 10
+h_layers = 5
 beta = 0.9
 np.random.seed(1)
 print("Cross Validation using {} folds".format(folds))
@@ -299,22 +300,22 @@ print("Building Deep Network of {} Hidden Layer Groups".format(h_layers))
 print("Cross Validation ..")
 cv_groups = cross_validated(X2, folds)
 print("Done")
-alphas = np.linspace(0.00175, 0.00175, oinst)
+alphas = np.linspace(0.005, 0.005, oinst)
 epsilons = np.linspace(0.76,0.78,oinst)
 gammas =  np.linspace(0.01,0.01,oinst)
 lambdas=  np.linspace(1.0,1.0,oinst)
 keep_probs=  np.linspace(0.99,0.99,oinst)
 alph_decays = np.linspace(0.9,0.9,oinst) 
-iterations = 150
+iterations = 300
 n_1 = []
-break_tol = 0.00000001
+break_tol = 0.00001
 etscost = []
 etrcost= []
 seeds = []
 layers = []
 for j in range(oinst):
     batch_processing = True
-    base_batch_size = 256 # min size
+    base_batch_size = 512 # min size
 
     print("Building Network")
     X = X2 # Direct Map
@@ -322,7 +323,7 @@ for j in range(oinst):
     acts = ['input']
     gamma = [0]
     for layer in range(h_layers):
-        n.append((9)**2) #((28-layer*3))**2)
+        n.append((7)**2) #((28-layer*3))**2)
         acts.append('lReLU') #tanh')
         gamma.append(np.sqrt(2/n[layer-1]))
         print("Hidden Layer[{: ^3d}] n = {: >4}, Activation Fn [{: >8}], Weight init Factor = {:.2E}".format(
@@ -401,9 +402,9 @@ for j in range(oinst):
     
     for i in range(iterations):
         if batch_processing:
-            batch_power = np.random.randint(0,int(np.log2(2048/base_batch_size)))
-            batch_size = base_batch_size * 2 ** batch_power
-            print("Epoch [{}], batch size [{}] [pwr {}], Training".format(i, batch_size, batch_power))
+            #batch_power = np.random.randint(0,int(np.log2(2048/base_batch_size)))
+            batch_size = base_batch_size #* 2 ** batch_power
+            #print("Epoch [{}], batch size [{}] [pwr {}], Training".format(i, batch_size, batch_power))
             grads, params, vgrad, d_rms = batch_back_propagation(X_train, 
                                                    y_train, 
                                                    params, 
@@ -441,7 +442,7 @@ for j in range(oinst):
         if i % 1 == 0:
             alpha *= (1-alpha) #alph_decays[j]
             print("---------------------------------------------------------------")
-            print("i = {:3d}, trc = {:3.2f}, tsc={:3.2f}, |dWL|_2 = {:.2E}".format(i,cost[-1],
+            print("i = {:3d}, trc = {:3.2f}, tsc={:3.2f}, ||dW_L||_2 = {:.2E}".format(i,cost[-1],
                                                                    tcost[-1], 
                                                                    alpha*np.abs(np.linalg.norm(grads["dW"+str(L)]))))
             print(" active alpha = {:.2E}".format(alpha))
