@@ -1,7 +1,7 @@
 import numpy as np # linear algebra
 
 
-def convolute(X, orig_x_size, orig_y_size, patch_x_size, patch_y_size, x_stride, y_stried):
+def convolute(X, orig_x_size, orig_y_size, patch_x_size, patch_y_size, x_stride, y_stride):
     """Given input X (n x m), an array of stacked vectorized images, 
     return a matrix of vectorized patches horizontally patched per image"""
     n_x, m = X.shape
