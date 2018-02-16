@@ -1,5 +1,6 @@
 import numpy as np # linear algebra
 
+
 def convolute(X, orig_x_size, orig_y_size, patch_x_size, patch_y_size, x_stride, y_stried):
     """Given input X (n x m), an array of stacked vectorized images, 
     return a matrix of vectorized patches horizontally patched per image"""
@@ -20,3 +21,4 @@ def convolute(X, orig_x_size, orig_y_size, patch_x_size, patch_y_size, x_stride,
                     cursor += 1
     # return dot product of M and X
     return np.dot(X, M)
+
