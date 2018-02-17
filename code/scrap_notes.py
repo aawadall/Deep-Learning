@@ -163,7 +163,6 @@ def back_dnn_propagation_with_momentum(X, Y, params, cache, alpha = 0.01, _lambd
     L = len(n) -1
     
     beta2 = 0.999
-    beta3 = 1 - alpha #1e-7
     
     m = X.shape[1]
     W_limit = 5
@@ -201,8 +200,8 @@ def back_dnn_propagation_with_momentum(X, Y, params, cache, alpha = 0.01, _lambd
     params["b"+str(L)] -= alpha * v_corr["b"+str(L)] / (np.sqrt(s_corr["b"+str(L)]) + 1e-8)
     
     for l in reversed(range(1,L)):
-        params["mu"+str(l)] = beta3 * params["mu"+str(l)] + (1-beta3) * np.reshape(np.nanmean(cache["Z"+str(l)], axis=1),(-1,1))
-        params["sig"+str(l)] = beta3 * params["sig"+str(l)] + (1-beta3) * np.reshape(np.nanstd(cache["Z"+str(l)], axis = 1),(-1,1))
+        params["mu"+str(l)] = (1 - alpha) * params["mu"+str(l)] + alpha * np.reshape(np.nanmean(cache["Z"+str(l)], axis=1),(-1,1))
+        params["sig"+str(l)] = (1 - alpha) * params["sig"+str(l)] + alpha * np.reshape(np.nanstd(cache["Z"+str(l)], axis = 1),(-1,1))
 
         dZ2 = dZ
         W2 = params["W"+str(l+1)]
@@ -288,7 +287,7 @@ m = labels.shape[0]
 y = np.zeros((m,10))
 for j in range(10):
     y[:,j]=(labels==j)*1
-
+# TODO: implement softmax as output layer 
 k = 38
 folds = 5
 oinst = 1
@@ -315,7 +314,7 @@ seeds = []
 layers = []
 for j in range(oinst):
     batch_processing = True
-    base_batch_size = 512 # min size
+    base_batch_size = 1024 # min size
 
     print("Building Network")
     X = X2 # Direct Map
@@ -323,7 +322,7 @@ for j in range(oinst):
     acts = ['input']
     gamma = [0]
     for layer in range(h_layers):
-        n.append((7)**2) #((28-layer*3))**2)
+        n.append((9)**2) #((28-layer*3))**2)
         acts.append('lReLU') #tanh')
         gamma.append(np.sqrt(2/n[layer-1]))
         print("Hidden Layer[{: ^3d}] n = {: >4}, Activation Fn [{: >8}], Weight init Factor = {:.2E}".format(
