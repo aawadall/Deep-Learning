@@ -69,6 +69,9 @@ def gdnn(X, activation_function):
         return ((X > 0) * X) + ((X <= 0)* X * leak_factor)
     if activation_function == 'linear':
         return X
+    if activation_function == 'softmax':
+        t = np.exp(X)
+        return t/np.sum(t)
     else: 
         return 1 / (1 +np.exp(-X))
 
@@ -335,7 +338,7 @@ for j in range(oinst):
     #        len(n)-1, n[-1], acts[-1], gamma[-1]))
     layers.append(j+1)    
     n.append(y.shape[1])
-    acts.append('sigmoid')
+    acts.append('softmax')
     gamma.append(np.sqrt(1/n[layer-1]))
     print("Output Layer n = {}, Activation Function [{}], Weight init Factor = {:3.2f}".format(
             n[-1], acts[-1], gamma[-1]))
