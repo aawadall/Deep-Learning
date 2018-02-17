@@ -91,7 +91,8 @@ def gdnn_prime(X, activation_function):
 def get_dnn_cost(Y_hat, Y):
     #print(Y.shape)
     m = Y.shape[1]
-    logprobs = np.multiply(np.log(Y_hat),Y) + np.multiply(np.log(1-Y_hat),1-Y)
+    # in case of softmax, we do not include (1-Y) term 
+    logprobs = np.multiply(np.log(Y_hat),Y) # + np.multiply(np.log(1-Y_hat),1-Y)
     cost = - np.sum(logprobs) /m
     return cost
     
