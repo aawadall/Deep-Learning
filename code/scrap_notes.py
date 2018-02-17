@@ -205,8 +205,9 @@ def back_dnn_propagation_with_momentum(X, Y, params, cache, alpha = 0.01, _lambd
     params["b"+str(L)] -= alpha * v_corr["b"+str(L)] / (np.sqrt(s_corr["b"+str(L)]) + 1e-8)
     
     for l in reversed(range(1,L)):
-        params["mu"+str(l)] = (1 - alpha) * params["mu"+str(l)] + alpha * np.reshape(np.nanmean(cache["Z"+str(l)], axis=1),(-1,1))
-        params["sig"+str(l)] = (1 - alpha) * params["sig"+str(l)] + alpha * np.reshape(np.nanstd(cache["Z"+str(l)], axis = 1),(-1,1))
+        if l < L:
+            params["mu"+str(l)] = (1 - alpha) * params["mu"+str(l)] + alpha * np.reshape(np.nanmean(cache["Z"+str(l)], axis=1),(-1,1))
+            params["sig"+str(l)] = (1 - alpha) * params["sig"+str(l)] + alpha * np.reshape(np.nanstd(cache["Z"+str(l)], axis = 1),(-1,1))
 
         dZ2 = dZ
         W2 = params["W"+str(l+1)]
@@ -296,7 +297,7 @@ for j in range(10):
 k = 38
 folds = 5
 oinst = 1
-h_layers = 6
+h_layers = 9
 beta = 0.9
 np.random.seed(1)
 print("Cross Validation using {} folds".format(folds))
@@ -304,7 +305,7 @@ print("Building Deep Network of {} Hidden Layer Groups".format(h_layers))
 print("Cross Validation ..")
 cv_groups = cross_validated(X2, folds)
 print("Done")
-alphas = np.linspace(0.0025, 0.0025, oinst)
+alphas = np.linspace(0.00125, 0.00125, oinst)
 epsilons = np.linspace(0.76,0.78,oinst)
 gammas =  np.linspace(0.01,0.01,oinst)
 lambdas=  np.linspace(1.0,1.0,oinst)
@@ -327,7 +328,7 @@ for j in range(oinst):
     acts = ['input']
     gamma = [0]
     for layer in range(h_layers):
-        n.append((10)**2) #((28-layer*3))**2)
+        n.append((28-layer)**2) #((28-layer*3))**2)
         acts.append('lReLU') #tanh')
         gamma.append(np.sqrt(2/n[layer-1]))
         print("Hidden Layer[{: ^3d}] n = {: >4}, Activation Fn [{: >8}], Weight init Factor = {:.2E}".format(
