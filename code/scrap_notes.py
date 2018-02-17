@@ -70,8 +70,9 @@ def gdnn(X, activation_function):
     if activation_function == 'linear':
         return X
     if activation_function == 'softmax':
-        t = np.exp(X)
-        return t/np.sum(t)
+        t = np.exp(X - np.max(X, axis = 0))
+        t_sum = np.reshape(np.sum(t, axis = 0),(1,-1))
+        return t/t_sum
     else: 
         return 1 / (1 +np.exp(-X))
 
