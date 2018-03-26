@@ -61,8 +61,7 @@ def gdnn_prime(X, activation_function):
         return 1-np.power(X,2)
     if activation_function == 'lReLU':
         return ((X > 0) * 1) + ((X <= 0)* leak_factor)
-    else: 
-        return (1 / (1 +np.exp(-X)))*(1-(1 / (1 +np.exp(-X))))
+    return (1 / (1 +np.exp(-X)))*(1-(1 / (1 +np.exp(-X)))) # Default Return
 
 # Cost 
 def get_dnn_cost(Y_hat, Y):
