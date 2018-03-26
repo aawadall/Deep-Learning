@@ -53,8 +53,7 @@ def gdnn(X, activation_function):
         return np.tanh(X)
     if activation_function == 'lReLU':
         return ((X > 0) * X) + ((X <= 0)* X * leak_factor)
-    else: 
-        return 1 / (1 +np.exp(-X))
+    return 1 / (1 +np.exp(-X)) # Default return
 
 def gdnn_prime(X, activation_function):
     leak_factor = 1/10000
