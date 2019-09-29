@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt # Visualization
 # For example, running this (by clicking run or pressing Shift+Enter) will list the files in the input directory
 
 from subprocess import check_output
-print(check_output(["ls", "../input"]).decode("utf8"))
 
 # Any results you write to the current directory are saved as output.
 # Load Data
@@ -53,8 +52,7 @@ def gdnn(X, activation_function):
         return np.tanh(X)
     if activation_function == 'lReLU':
         return ((X > 0) * X) + ((X <= 0)* X * leak_factor)
-    else: 
-        return 1 / (1 +np.exp(-X))
+    return 1 / (1 +np.exp(-X)) # Default return
 
 def gdnn_prime(X, activation_function):
     leak_factor = 1/10000
@@ -62,8 +60,7 @@ def gdnn_prime(X, activation_function):
         return 1-np.power(X,2)
     if activation_function == 'lReLU':
         return ((X > 0) * 1) + ((X <= 0)* leak_factor)
-    else: 
-        return (1 / (1 +np.exp(-X)))*(1-(1 / (1 +np.exp(-X))))
+    return (1 / (1 +np.exp(-X)))*(1-(1 / (1 +np.exp(-X)))) # Default Return
 
 # Cost 
 def get_dnn_cost(Y_hat, Y):
